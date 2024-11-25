@@ -37,7 +37,11 @@ class UserTest extends ApiTestCase
             ]
         ]);
 
-        self::$token = $response->toArray()['token'];
+        $data = $response->toArray();
+        if (!isset($data['token']) || !is_string($data['token'])) {
+            throw new \RuntimeException('Token invalide ou manquant dans la réponse');
+        }
+        self::$token = $data['token'];
     }
 
     /**
