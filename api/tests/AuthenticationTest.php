@@ -3,7 +3,6 @@
 namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\Entity\User;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -12,43 +11,40 @@ class AuthenticationTest extends ApiTestCase
 {
   use ResetDatabase, Factories;
 
-    public function testLogin(): void
-    {
-        // Create a users
-        UserFactory::createMany(10);
+  public function testLogin(): void
+  {
+    // Create a users
+    UserFactory::createMany(10);
 
-        $client = self::createClient();
-        $container = self::getContainer();
+    $client = self::createClient();
 
-        $user = new User();
-        $user->setEmail('test@example.com');
-        $user->setPassword(
-            $container->get('security.user_password_hasher')->hashPassword($user, '$3CR3T')
-        );
+    UserFactory::createOne([
+      'email' => 'test@example.com',
+      'password' => 'test123'  // Sera automatiquement hashé
+    ]);
 
-        $manager = $container->get('doctrine')->getManager();
-        $manager->persist($user);
-        $manager->flush();
+    // retrieve a token
+    $response = $client->request('POST', '/auth', [
+      'headers' => ['Content-Type' => 'application/json'],
+      'json' => [
+        'email' => 'test@example.com',
+        'password' => 'test123',
+      ],
+    ]);
 
-        // retrieve a token
-        $response = $client->request('POST', '/auth', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'email' => 'test@example.com',
-                'password' => '$3CR3T',
-            ],
-        ]);
+    $json = $response->toArray();
+    $this->assertResponseIsSuccessful();
+    $this->assertArrayHasKey('token', $json);
 
-        $json = $response->toArray();
-        $this->assertResponseIsSuccessful();
-        $this->assertArrayHasKey('token', $json);
+    // test not authorized
+    $client->request('GET', '/users');
+    $this->assertResponseStatusCodeSame(401);
 
-        // test not authorized
-        $client->request('GET', '/users');
-        $this->assertResponseStatusCodeSame(401);
-
-        // test authorized
-        $client->request('GET', '/users', ['auth_bearer' => $json['token']]);
-        $this->assertResponseIsSuccessful();
-    }
+    // test authorized    
+    $response = $client->request('GET', '/users', ['auth_bearer' => $json['token']]);
+    $this->assertResponseIsSuccessful();
+    $this->assertJsonContains([
+      'totalItems' => 11
+    ]);
+  }
 }

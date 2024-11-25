@@ -14,3 +14,7 @@ api_platform:
             JWT:
                 name: Authorization
                 type: header
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+        csv: ['text/csv']
