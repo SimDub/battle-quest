@@ -29,5 +29,16 @@ docker compose exec php php -dxdebug.start_with_request=yes bin/phpunit
 ```bash
 docker compose exec php php bin/phpunit
 ```
+
+# corriger les erreurs de code :
+```bash
+docker compose exec php composer cs:fix
+```
+
+# analyser le code avec phpstan :
+```bash
+api/vendor/bin/phpstan analyse
+```
+
 # lien vers le projet :
 https://github.com/SimDub/battle-quest

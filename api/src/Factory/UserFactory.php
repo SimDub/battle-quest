@@ -45,7 +45,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            ->afterInstantiate(function(User $user): void {
+            ->afterInstantiate(function (User $user): void {
                 // Hash le mot de passe avant de sauvegarder l'utilisateur
                 $hashedPassword = $this->passwordHasher->hashPassword(
                     $user,

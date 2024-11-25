@@ -1,4 +1,5 @@
 <?php
+
 // api/src/State/UserPasswordHasher.php
 
 namespace App\State;
@@ -19,8 +20,7 @@ final readonly class UserPasswordHasher implements ProcessorInterface
     public function __construct(
         private ProcessorInterface $processor,
         private UserPasswordHasherInterface $passwordHasher
-    )
-    {
+    ) {
     }
 
     /**
@@ -31,7 +31,6 @@ final readonly class UserPasswordHasher implements ProcessorInterface
      *     resource_class?: string|null,
      *     original_data?: mixed
      * } $context
-     * @return User|null
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?User
     {
